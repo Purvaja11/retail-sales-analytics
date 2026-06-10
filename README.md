@@ -129,6 +129,9 @@ Maintaining 12% margin in November alone would add ~$4.5K profit.
 ---
 
 ## 🗂️ Project Structure
+## 🗂️ Project Structure
+
+```
 retail-sales-analytics/
 │
 ├── data/
@@ -163,11 +166,12 @@ retail-sales-analytics/
 │   └── page5_discount.png
 │
 ├── excel/
-│   ├── regional_analysis.xlsx
-│   ├── category_analysis.xlsx
+│   ├── regional_analysis.png
+│   ├── category_analysis.png
 │   └── superstore_analysis.xlsx
 │
 └── README.md
+```
 ---
 
 ## 💻 How to Run
@@ -187,7 +191,7 @@ python sql/analysis.py
 python notebooks/charts.py
 
 # 5. Open Power BI dashboard
-Open dashboard/Retail_Sales_Dashboard.pbix in Power BI Desktop
+Open: dashboard/Retail_Sales_Dashboard.pbix
 ```
 
 ---
