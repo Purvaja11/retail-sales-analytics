@@ -170,6 +170,7 @@ retail-sales-analytics/
 │   ├── category_analysis.png
 │   └── superstore_analysis.xlsx
 │
+├── requirements.txt
 └── README.md
 ```
 ---
