@@ -126,6 +126,35 @@ sales volume is highest.
 **Recommendation:** Cap discount rates during Q4 peak season.  
 Maintaining 12% margin in November alone would add ~$4.5K profit.
 
+### 7. The Discount Cliff
+Orders with 0% discount earn **29.51% margin**.
+The moment discount crosses 20%, margin turns negative (-10%).
+Above 40% discount, the business loses **77 cents on every dollar sold**.
+933 orders were placed at 40%+ discount — active revenue destruction.
+
+**Recommendation:** Set a hard discount cap at 20%. 
+Estimated annual margin recovery: ~$135K.
+
+### 8. Central Region Discount Problem — Proven
+Central has **31.9% loss orders** with average **54.9% discount** on those orders.
+West has only 9.9% loss orders with 37.2% average discount.
+The discount policy in Central is the direct, provable cause of the margin gap.
+
+**Recommendation:** Implement region-specific discount approval 
+thresholds — Central region needs immediate intervention.
+
+### 9. Loyal Customers Are 7x More Valuable
+| Customer Type | Avg Orders | Avg Lifetime Value |
+|--------------|------------|-------------------|
+| Loyal (4+) | 6.9 | $3,160 |
+| Occasional (2-3) | 2.6 | $1,137 |
+| One-time | 1.0 | $430 |
+
+Acquiring one loyal customer equals acquiring 7 one-time buyers in value.
+
+**Recommendation:** Invest in loyalty programmes over mass acquisition.
+Retaining 10% more customers at loyal tier adds ~$276K lifetime value.
+
 ---
 ## 🗂️ Project Structure
 
