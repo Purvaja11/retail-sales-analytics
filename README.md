@@ -21,6 +21,19 @@
 ### Customer Segments
 ![Customer Segments](dashboard/page4_segments.png)
 
+### Discount Analysis Page
+![Discount Analysis](dashboard/page5_discount.png)
+
+---
+
+## 📊 Excel Analysis
+
+### Regional Performance Pivot
+![Regional Analysis](excel/regional_analysis.png)
+
+### Category Breakdown Pivot  
+![Category Analysis](excel/category_analysis.png)
+
 ---
 
 ## 📈 Python Analysis Charts (Plotly)
@@ -39,6 +52,15 @@
 
 ### Chart 5 — Customer Segment Analysis
 ![Customer Segments](charts/chart5_customer_segments.png)
+
+### Chart 6 — Discount Impact on Profit Margin
+![Discount Impact](charts/chart6_discount_impact.png)
+
+### Chart 7 — Loss Orders by Region
+![Loss by Region](charts/chart7_loss_by_region.png)
+
+### Chart 8 — Customer Lifetime Value
+![Customer LTV](charts/chart8_customer_ltv.png)
 
 ---
 
@@ -106,30 +128,45 @@ Maintaining 12% margin in November alone would add ~$4.5K profit.
 ---
 
 ## 🗂️ Project Structure
-```
 retail-sales-analytics/
+│
 ├── data/
-│   ├── superstore.csv              # Raw dataset
-│   └── superstore_clean.csv        # Cleaned for Power BI
+│   ├── superstore.csv
+│   ├── superstore_clean.csv
+│   └── superstore.db
+│
 ├── sql/
-│   └── analysis.py                 # 5 SQL business queries (SQLite)
+│   └── analysis.py
+│
 ├── notebooks/
-│   ├── charts.py                   # 5 Plotly visualizations
-│   └── prep_for_powerbi.py         # Date cleaning script
+│   ├── charts.py
+│   └── prep_for_powerbi.py
+│
 ├── charts/
 │   ├── chart1_regional_analysis.png
 │   ├── chart2_product_profitability.png
 │   ├── chart3_subcategory_bubble.png
 │   ├── chart4_monthly_trend.png
-│   └── chart5_customer_segments.png
+│   ├── chart5_customer_segments.png
+│   ├── chart6_discount_impact.png
+│   ├── chart7_loss_by_region.png
+│   └── chart8_customer_lifetime.png
+│
 ├── dashboard/
+│   ├── app.py
 │   ├── Retail_Sales_Dashboard.pbix
 │   ├── page1_overview.png
 │   ├── page2_sales.png
 │   ├── page3_products.png
-│   └── page4_segments.png
+│   ├── page4_segments.png
+│   └── page5_discount.png
+│
+├── excel/
+│   ├── regional_analysis.xlsx
+│   ├── category_analysis.xlsx
+│   └── superstore_analysis.xlsx
+│
 └── README.md
-```
 ---
 
 ## 💻 How to Run

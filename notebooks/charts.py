@@ -255,6 +255,178 @@ fig5.write_image('retail-sales-analytics/charts/chart5_customer_segments.png', s
 fig5.show()
 print("✅ Chart 5 saved")
 
+# ══════════════════════════════════════════════════════
+# CHART 6 — Discount Impact on Profit Margin
+# ══════════════════════════════════════════════════════
+df6 = pd.read_sql_query("""
+    SELECT 
+        CASE 
+            WHEN Discount = 0 THEN '0% No Discount'
+            WHEN Discount <= 0.10 THEN '1-10%'
+            WHEN Discount <= 0.20 THEN '11-20%'
+            WHEN Discount <= 0.30 THEN '21-30%'
+            WHEN Discount <= 0.40 THEN '31-40%'
+            ELSE '40%+'
+        END AS discount_bracket,
+        ROUND(AVG(Discount)*100, 1) AS avg_discount_pct,
+        ROUND(SUM(Profit)/SUM(Sales)*100, 2) AS profit_margin_pct,
+        COUNT(*) AS order_count
+    FROM orders
+    GROUP BY discount_bracket
+    ORDER BY avg_discount_pct
+""", conn)
+
+colors_margin = ['#C73E1D' if m < 0 else '#2E86AB' 
+                 for m in df6['profit_margin_pct']]
+
+fig6 = go.Figure()
+fig6.add_trace(go.Bar(
+    x=df6['discount_bracket'],
+    y=df6['profit_margin_pct'],
+    marker_color=colors_margin,
+    text=[f"{m:.1f}%" for m in df6['profit_margin_pct']],
+    textposition='outside',
+    textfont=dict(size=12, color='black')
+))
+fig6.add_hline(y=0, line_width=2, line_color='black')
+fig6.add_hline(y=12.47, line_dash='dash', line_color='gray',
+               annotation_text="Overall avg margin: 12.47%",
+               annotation_position="top right")
+fig6.update_layout(
+    title=dict(
+        text='<b>Discount Rate vs Profit Margin</b><br>'
+             '<sup>Discounts above 20% destroy profitability — 40%+ loses 77¢ per dollar sold</sup>',
+        font=dict(size=16)
+    ),
+    xaxis_title='Discount Bracket',
+    yaxis_title='Profit Margin (%)',
+    yaxis=dict(ticksuffix='%', gridcolor='#f0f0f0',
+               range=[-90, 45]),
+    plot_bgcolor='white', paper_bgcolor='white',
+    height=450
+)
+fig6.write_image('retail-sales-analytics/charts/chart6_discount_impact.png', scale=2)
+fig6.show()
+print("✅ Chart 6 saved")
+
+# ══════════════════════════════════════════════════════
+# CHART 7 — Loss Orders by Region
+# ══════════════════════════════════════════════════════
+df7 = pd.read_sql_query("""
+    SELECT 
+        Region,
+        ROUND(SUM(CASE WHEN Profit < 0 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 1) AS loss_order_pct,
+        ROUND(ABS(SUM(CASE WHEN Profit < 0 THEN Profit ELSE 0 END)), 2) AS total_loss,
+        ROUND(SUM(CASE WHEN Profit < 0 THEN Discount ELSE 0 END) /
+              SUM(CASE WHEN Profit < 0 THEN 1 ELSE 0 END) * 100, 1) AS avg_discount_on_losses
+    FROM orders
+    GROUP BY Region
+    ORDER BY loss_order_pct DESC
+""", conn)
+
+fig7 = make_subplots(rows=1, cols=2,
+                     subplot_titles=('Loss Order % by Region',
+                                     'Total Loss Amount by Region ($)'))
+bar_colors = ['#C73E1D', '#E8845A', '#F0A87A', '#2E86AB']
+
+fig7.add_trace(go.Bar(
+    x=df7['Region'], y=df7['loss_order_pct'],
+    marker_color=bar_colors,
+    text=[f"{v}%" for v in df7['loss_order_pct']],
+    textposition='outside', showlegend=False
+), row=1, col=1)
+
+fig7.add_trace(go.Bar(
+    x=df7['Region'], y=df7['total_loss'],
+    marker_color=bar_colors,
+    text=[f"${v:,.0f}" for v in df7['total_loss']],
+    textposition='outside', showlegend=False
+), row=1, col=2)
+
+fig7.update_layout(
+    title=dict(
+        text='<b>Loss Orders by Region</b><br>'
+             '<sup>Central: 31.9% of orders lose money — avg 54.9% discount on loss orders</sup>',
+        font=dict(size=16)
+    ),
+    plot_bgcolor='white', paper_bgcolor='white',
+    height=420
+)
+fig7.update_yaxes(gridcolor='#f0f0f0')
+fig7.write_image('retail-sales-analytics/charts/chart7_loss_by_region.png', scale=2)
+fig7.show()
+print("✅ Chart 7 saved")
+
+# ══════════════════════════════════════════════════════
+# CHART 8 — Customer Lifetime Value by Type
+# ══════════════════════════════════════════════════════
+df8 = pd.read_sql_query("""
+    SELECT 
+        purchase_type,
+        COUNT(*) AS customer_count,
+        ROUND(AVG(total_spent), 2) AS avg_lifetime_value,
+        ROUND(AVG(avg_order_value), 2) AS avg_order_value,
+        ROUND(AVG(total_orders), 1) AS avg_orders
+    FROM (
+        SELECT 
+            [Customer ID],
+            COUNT(DISTINCT [Order ID]) AS total_orders,
+            ROUND(SUM(Sales), 2) AS total_spent,
+            ROUND(AVG(Sales), 2) AS avg_order_value,
+            CASE 
+                WHEN COUNT(DISTINCT [Order ID]) = 1 THEN 'One-time Buyer'
+                WHEN COUNT(DISTINCT [Order ID]) <= 3 THEN 'Occasional Buyer'
+                ELSE 'Loyal Customer'
+            END AS purchase_type
+        FROM orders
+        GROUP BY [Customer ID]
+    )
+    GROUP BY purchase_type
+    ORDER BY avg_lifetime_value DESC
+""", conn)
+
+fig8 = make_subplots(
+    rows=1, cols=3,
+    subplot_titles=('Avg Lifetime Value ($)',
+                    'Avg Order Value ($)',
+                    'Avg Number of Orders')
+)
+seg_colors = ['#2C3E50', '#2E86AB', '#BDC3C7']
+
+fig8.add_trace(go.Bar(
+    x=df8['purchase_type'], y=df8['avg_lifetime_value'],
+    marker_color=seg_colors, showlegend=False,
+    text=[f"${v:,.0f}" for v in df8['avg_lifetime_value']],
+    textposition='outside'
+), row=1, col=1)
+
+fig8.add_trace(go.Bar(
+    x=df8['purchase_type'], y=df8['avg_order_value'],
+    marker_color=seg_colors, showlegend=False,
+    text=[f"${v:,.0f}" for v in df8['avg_order_value']],
+    textposition='outside'
+), row=1, col=2)
+
+fig8.add_trace(go.Bar(
+    x=df8['purchase_type'], y=df8['avg_orders'],
+    marker_color=seg_colors, showlegend=False,
+    text=[f"{v:.1f}" for v in df8['avg_orders']],
+    textposition='outside'
+), row=1, col=3)
+
+fig8.update_layout(
+    title=dict(
+        text='<b>Customer Lifetime Value Analysis</b><br>'
+             '<sup>Loyal customers worth 7x more than one-time buyers — retention beats acquisition</sup>',
+        font=dict(size=16)
+    ),
+    plot_bgcolor='white', paper_bgcolor='white',
+    height=420
+)
+fig8.update_yaxes(gridcolor='#f0f0f0')
+fig8.write_image('retail-sales-analytics/charts/chart8_customer_ltv.png', scale=2)
+fig8.show()
+print("✅ Chart 8 saved")
+
 conn.close()
-print("\n✅ All 5 charts saved to /charts folder")
-print("📁 Ready for Power BI and Streamlit")
+print("\n✅ All upgrade charts saved")

@@ -88,5 +88,82 @@ q5 = pd.read_sql_query("""
 """, conn)
 print("\n📊 Q5 — Customer Segment Analysis:\n", q5.to_string(index=False))
 
+# ══════════════════════════════════════════════════════
+# UPGRADE: Discount Impact Analysis
+# The real reason Central region has 7.9% margin
+# ══════════════════════════════════════════════════════
+
+print("\n" + "="*60)
+print("UPGRADE ANALYSIS: Discount Impact on Profitability")
+print("="*60)
+
+# Query 6 — Discount brackets vs profit margin
+q6 = pd.read_sql_query("""
+    SELECT 
+        CASE 
+            WHEN Discount = 0 THEN '0% - No Discount'
+            WHEN Discount <= 0.10 THEN '1-10% Discount'
+            WHEN Discount <= 0.20 THEN '11-20% Discount'
+            WHEN Discount <= 0.30 THEN '21-30% Discount'
+            WHEN Discount <= 0.40 THEN '31-40% Discount'
+            ELSE '40%+ Discount'
+        END AS discount_bracket,
+        COUNT(*) AS order_count,
+        ROUND(AVG(Discount)*100, 1) AS avg_discount_pct,
+        ROUND(SUM(Sales), 2) AS total_sales,
+        ROUND(SUM(Profit), 2) AS total_profit,
+        ROUND(SUM(Profit)/SUM(Sales)*100, 2) AS profit_margin_pct
+    FROM orders
+    GROUP BY discount_bracket
+    ORDER BY avg_discount_pct
+""", conn)
+print("\n📊 Q6 — Discount Brackets vs Profit Margin:")
+print(q6.to_string(index=False))
+
+# Query 7 — Loss orders analysis
+q7 = pd.read_sql_query("""
+    SELECT 
+        Region,
+        COUNT(*) AS total_orders,
+        SUM(CASE WHEN Profit < 0 THEN 1 ELSE 0 END) AS loss_orders,
+        ROUND(SUM(CASE WHEN Profit < 0 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 1) AS loss_order_pct,
+        ROUND(SUM(CASE WHEN Profit < 0 THEN Profit ELSE 0 END), 2) AS total_loss_amount,
+        ROUND(SUM(CASE WHEN Profit < 0 THEN Discount ELSE 0 END) / 
+              SUM(CASE WHEN Profit < 0 THEN 1 ELSE 0 END) * 100, 1) AS avg_discount_on_loss_orders
+    FROM orders
+    GROUP BY Region
+    ORDER BY loss_order_pct DESC
+""", conn)
+print("\n📊 Q7 — Loss Orders by Region:")
+print(q7.to_string(index=False))
+
+# Query 8 — Repeat customer analysis
+q8 = pd.read_sql_query("""
+    SELECT 
+        purchase_type,
+        COUNT(*) AS customer_count,
+        ROUND(AVG(total_orders), 1) AS avg_orders,
+        ROUND(AVG(total_spent), 2) AS avg_lifetime_value,
+        ROUND(AVG(avg_order_value), 2) AS avg_order_value
+    FROM (
+        SELECT 
+            [Customer ID],
+            COUNT(DISTINCT [Order ID]) AS total_orders,
+            ROUND(SUM(Sales), 2) AS total_spent,
+            ROUND(AVG(Sales), 2) AS avg_order_value,
+            CASE 
+                WHEN COUNT(DISTINCT [Order ID]) = 1 THEN 'One-time Buyer'
+                WHEN COUNT(DISTINCT [Order ID]) <= 3 THEN 'Occasional Buyer'
+                ELSE 'Loyal Customer'
+            END AS purchase_type
+        FROM orders
+        GROUP BY [Customer ID]
+    )
+    GROUP BY purchase_type
+    ORDER BY avg_lifetime_value DESC
+""", conn)
+print("\n📊 Q8 — Repeat Customer Analysis:")
+print(q8.to_string(index=False))
+
 conn.close()
-print("\n✅ Day 1 complete — 5 business questions answered with SQL")
+print("\n✅ Upgrade analysis complete")
