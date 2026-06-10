@@ -1,4 +1,5 @@
 # 🛒 Retail Sales & Customer Analytics
+[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://purvaja11-retail-sales-analytics.streamlit.app/)
 
 > **Tools:** Python · SQL (SQLite) · Power BI · Excel · Pandas · Plotly  
 > **Dataset:** Superstore Sales Dataset (9,994 transactions, 2014–2017)  
