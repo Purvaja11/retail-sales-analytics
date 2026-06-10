@@ -35,6 +35,8 @@ def load_data():
     df['Month'] = df['Order Date'].dt.to_period('M').astype(str)
     return df
 
+df = load_data()
+
 # ── Sidebar filters ────────────────────────────────────
 st.sidebar.title("🔍 Filters")
 selected_region = st.sidebar.multiselect(
